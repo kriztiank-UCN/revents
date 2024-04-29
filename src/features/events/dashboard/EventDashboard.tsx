@@ -12,6 +12,7 @@ type Props = {
 
 export default function EventDashboard({ formOpen, setFormOpen }: Props) {
   const [events, setEvents] = useState<AppEvent[]>([])
+  const [selectedEvent, setSelectedEvent] = useState<AppEvent | null>(null)
 
   // empty dependency array means this effect will only run once
   useEffect(() => {
@@ -19,16 +20,27 @@ export default function EventDashboard({ formOpen, setFormOpen }: Props) {
   }, [])
 
   function addEvent(event: AppEvent) {
-    setEvents([...events, event])
+    setEvents(prevState => {
+      return [...prevState, event]
+    })
+  }
+
+  function handleSelectEvent(event: AppEvent) {
+    setSelectedEvent(event)
+    setFormOpen(true)
   }
 
   return (
     <Grid>
       <Grid.Column width={10}>
-        <EventList events={events} />
+        <EventList events={events} selectEvent={handleSelectEvent} />
       </Grid.Column>
       <Grid.Column width={6}>
-        {formOpen && <EventForm setFormOpen={setFormOpen} addEvent={addEvent} />}
+        {formOpen && 
+        <EventForm 
+        setFormOpen={setFormOpen} 
+        addEvent={addEvent} 
+        selectedEvent={selectedEvent} />}
       </Grid.Column>
     </Grid>
   )

@@ -6,10 +6,12 @@ import { createId } from "@paralleldrive/cuid2"
 type Props = {
   setFormOpen: (value: boolean) => void
   addEvent: (event: AppEvent) => void
+  selectedEvent: AppEvent | null
 }
 
-export default function EventForm({ setFormOpen, addEvent }: Props) {
-  const initialValues = {
+export default function EventForm({ setFormOpen, addEvent, selectedEvent }: Props) {
+  // if we have a selected event, we'll use that as the initial values
+  const initialValues = selectedEvent ?? {
     title: "",
     category: "",
     description: "",
