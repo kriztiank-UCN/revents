@@ -3,6 +3,7 @@ import EventDashboard from "../../features/events/dashboard/EventDashboard"
 import NavBar from "./nav/NavBar"
 import { useState } from "react"
 import { AppEvent } from "../types/event"
+import { Outlet } from "react-router-dom"
 
 function App() {
   const [formOpen, setFormOpen] = useState(false)
@@ -23,13 +24,7 @@ function App() {
       {/* pass down the setFormOpen function to the NavBar component as a prop */}
       <NavBar setFormOpen={handleCreateFormOpen} />
       <Container className="main">
-        {/* pass down the formOpen state and setFormOpen function to the EventDashboard component as props */}
-        <EventDashboard
-          formOpen={formOpen}
-          setFormOpen={setFormOpen}
-          selectedEvent={selectedEvent}
-          selectEvent={handleSelectEvent}
-        />
+        <Outlet />
       </Container>
     </>
   )
