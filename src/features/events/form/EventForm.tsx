@@ -1,18 +1,9 @@
-import { useState } from "react"
+import { ChangeEvent, useState } from "react"
 import { Button, Form, Header, Segment } from "semantic-ui-react"
-import { AppEvent } from "../../../app/types/event"
-import { createId } from "@paralleldrive/cuid2"
 
-type Props = {
-  setFormOpen: (value: boolean) => void
-  addEvent: (event: AppEvent) => void
-  selectedEvent: AppEvent | null
-  updateEvent: (event: AppEvent) => void
-}
-
-export default function EventForm({ setFormOpen, addEvent, selectedEvent, updateEvent }: Props) {
+export default function EventForm() {
   // if we have a selected event, we'll use that as the initial values
-  const initialValues = selectedEvent ?? {
+  const initialValues = {
     title: "",
     category: "",
     description: "",
@@ -24,14 +15,15 @@ export default function EventForm({ setFormOpen, addEvent, selectedEvent, update
   const [values, setValues] = useState(initialValues)
 
   function onSubmit() {
-    selectedEvent
-      ? updateEvent({ ...selectedEvent, ...values })
-      : addEvent({ ...values, id: createId(), hostedBy: "bob", attendees: [], hostPhotoURL: "" })
-    setFormOpen(false)
+    console.log(values);
+    // selectedEvent
+    //   ? updateEvent({ ...selectedEvent, ...values })
+    //   : addEvent({ ...values, id: createId(), hostedBy: "bob", attendees: [], hostPhotoURL: "" })
+    // setFormOpen(false)
   }
 
   // we'll use the name and value to update our state
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleInputChange(e: ChangeEvent<HTMLInputElement>) {
     // get the name and value from the input fields
     const { name, value } = e.target
     // update the state with the new value
@@ -40,7 +32,7 @@ export default function EventForm({ setFormOpen, addEvent, selectedEvent, update
 
   return (
     <Segment clearing>
-      <Header content={selectedEvent ? 'Update event' : 'Create Event'} />
+      <Header content={'Create Event'} />
       <Form onSubmit={onSubmit}>
         <Form.Field>
           <input
@@ -97,7 +89,7 @@ export default function EventForm({ setFormOpen, addEvent, selectedEvent, update
           />
         </Form.Field>
         <Button type="submit" floated="right" positive content="Submit" />
-        <Button onClick={() => setFormOpen(false)} type="submit" floated="right" content="Cancel" />
+        <Button type="submit" floated="right" content="Cancel" />
       </Form>
     </Segment>
   )
