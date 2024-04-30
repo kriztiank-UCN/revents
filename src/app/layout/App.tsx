@@ -1,16 +1,20 @@
-import { Container } from "semantic-ui-react"
-import NavBar from "./nav/NavBar"
-import { Outlet, useLocation } from "react-router-dom"
-import HomePage from "../../features/home/HomePage"
+import { Container } from 'semantic-ui-react'
+import NavBar from './nav/NavBar'
+import { Outlet, useLocation } from 'react-router-dom';
+import HomePage from '../../features/home/HomePage';
 
 function App() {
-  const location = useLocation()
+  const location = useLocation();
   return (
     <>
-      <NavBar />
-      <Container className="main">
-        {location.pathname === "/" ? <HomePage /> : <Outlet />}
-      </Container>
+      {location.pathname === '/' ? <HomePage /> : (
+        <>
+          <NavBar />
+          <Container className='main'>
+            <Outlet />
+          </Container>
+        </>
+      )}
     </>
   )
 }
