@@ -8,11 +8,13 @@ import { sampleData } from "../../../app/api/sampleData"
 type Props = {
   formOpen: boolean
   setFormOpen: (value: boolean) => void
+  selectEvent: (event: AppEvent | null) => void
+  selectedEvent: AppEvent | null
 }
 
-export default function EventDashboard({ formOpen, setFormOpen }: Props) {
+export default function EventDashboard({ formOpen, setFormOpen, selectEvent, selectedEvent }: Props) {
   const [events, setEvents] = useState<AppEvent[]>([])
-  const [selectedEvent, setSelectedEvent] = useState<AppEvent | null>(null)
+
 
   // empty dependency array means this effect will only run once
   useEffect(() => {
@@ -25,22 +27,27 @@ export default function EventDashboard({ formOpen, setFormOpen }: Props) {
     })
   }
 
-  function handleSelectEvent(event: AppEvent) {
-    setSelectedEvent(event)
-    setFormOpen(true)
+  function updateEvent(updatedEvent: AppEvent) {
+    setEvents(events.map(evt => evt.id === updatedEvent.id ? updatedEvent : evt));
+    selectEvent(null);
+    setFormOpen(false);
   }
 
   return (
     <Grid>
       <Grid.Column width={10}>
-        <EventList events={events} selectEvent={handleSelectEvent} />
+        <EventList events={events} selectEvent={selectEvent} />
       </Grid.Column>
       <Grid.Column width={6}>
-        {formOpen && 
-        <EventForm 
-        setFormOpen={setFormOpen} 
-        addEvent={addEvent} 
-        selectedEvent={selectedEvent} />}
+        {formOpen && (
+          <EventForm
+            setFormOpen={setFormOpen}
+            updateEvent={updateEvent}
+            addEvent={addEvent}
+            selectedEvent={selectedEvent}
+            key={selectedEvent ? selectedEvent.id : "create"}
+          />
+        )}
       </Grid.Column>
     </Grid>
   )

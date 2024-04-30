@@ -7,9 +7,10 @@ type Props = {
   setFormOpen: (value: boolean) => void
   addEvent: (event: AppEvent) => void
   selectedEvent: AppEvent | null
+  updateEvent: (event: AppEvent) => void
 }
 
-export default function EventForm({ setFormOpen, addEvent, selectedEvent }: Props) {
+export default function EventForm({ setFormOpen, addEvent, selectedEvent, updateEvent }: Props) {
   // if we have a selected event, we'll use that as the initial values
   const initialValues = selectedEvent ?? {
     title: "",
@@ -23,16 +24,12 @@ export default function EventForm({ setFormOpen, addEvent, selectedEvent }: Prop
   const [values, setValues] = useState(initialValues)
 
   function onSubmit() {
-    // console.log(values)
-    addEvent({
-      ...values,
-      id: createId(),
-      hostedBy: "Bob",
-      attendees: [],
-      hostPhotoURL: "",
-    })
+    selectedEvent
+      ? updateEvent({ ...selectedEvent, ...values })
+      : addEvent({ ...values, id: createId(), hostedBy: "bob", attendees: [], hostPhotoURL: "" })
     setFormOpen(false)
   }
+
   // we'll use the name and value to update our state
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     // get the name and value from the input fields
@@ -43,7 +40,7 @@ export default function EventForm({ setFormOpen, addEvent, selectedEvent }: Prop
 
   return (
     <Segment clearing>
-      <Header content="Create Event" />
+      <Header content={selectedEvent ? 'Update event' : 'Create Event'} />
       <Form onSubmit={onSubmit}>
         <Form.Field>
           <input
