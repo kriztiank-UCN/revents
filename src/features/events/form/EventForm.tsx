@@ -24,11 +24,11 @@ export default function EventForm() {
   const [values, setValues] = useState(initialValues)
 
   function onSubmit() {
-    console.log(values)
-    // selectedEvent
-    //   ? updateEvent({ ...selectedEvent, ...values })
-    //   : addEvent({ ...values, id: createId(), hostedBy: "bob", attendees: [], hostPhotoURL: "" })
-    // setFormOpen(false)
+    id = id ?? createId();
+    event 
+        ? dispatch(updateEvent({...event, ...values}))
+        : dispatch(createEvent({...values, id, hostedBy: 'bob', attendees: [], hostPhotoURL: ''}))
+    navigate(`/events/${id}`);
   }
 
   // we'll use the name and value to update our state
