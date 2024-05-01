@@ -1,17 +1,25 @@
-import { ChangeEvent, useState } from "react"
-import { Link } from "react-router-dom"
-import { Button, Form, Header, Segment } from "semantic-ui-react"
+import { ChangeEvent, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Button, Form, Header, Segment } from 'semantic-ui-react';
+import { useAppDispatch, useAppSelector } from '../../../app/store/store';
+import { createEvent, updateEvent } from '../eventSlice';
+import { createId } from '@paralleldrive/cuid2';
 
 export default function EventForm() {
+  let {id} = useParams();
+  const event = useAppSelector(state => state.events.events.find(e => e.id === id));
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   // if we have a selected event, we'll use that as the initial values
-  const initialValues = {
-    title: "",
-    category: "",
-    description: "",
-    city: "",
-    venue: "",
-    date: "",
-  }
+  const initialValues = event ?? {
+    title: '',
+    category: '',
+    description: '',
+    city: '',
+    venue: '',
+    date: ''
+}
 
   const [values, setValues] = useState(initialValues)
 
@@ -33,7 +41,7 @@ export default function EventForm() {
 
   return (
     <Segment clearing>
-      <Header content={"Create Event"} />
+     <Header content={event ? 'Update event' : 'Create Event'} />
       <Form onSubmit={onSubmit}>
         <Form.Field>
           <input
