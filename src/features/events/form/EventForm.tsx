@@ -7,11 +7,9 @@ import { createId } from "@paralleldrive/cuid2"
 import { FieldValues, useForm } from "react-hook-form"
 
 export default function EventForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid},
-  } = useForm({ mode: "onTouched" })
+  const { register, handleSubmit, formState: { errors, isValid, isSubmitting } } = useForm({
+    mode: 'onTouched'
+});
   let { id } = useParams()
   const event = useAppSelector(state => state.events.events.find(e => e.id === id))
   const dispatch = useAppDispatch()
@@ -28,7 +26,7 @@ export default function EventForm() {
 
   return (
     <Segment clearing>
-      <Header content={event ? "Update event" : "Create Event"} />
+      <Header content='Event details' sub color='teal' />
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Form.Input
           placeholder="Event title"
@@ -36,21 +34,19 @@ export default function EventForm() {
           {...register("title", { required: true })}
           error={errors.title && "Title is required"}
         />
-
         <Form.Input
           placeholder="Category"
           defaultValue={event?.category || ""}
           {...register("category", { required: "Category is required" })}
           error={errors.category && errors.category.message}
         />
-
-        <Form.Input
+        <Form.TextArea
           placeholder="Description"
           defaultValue={event?.description || ""}
           {...register("description", { required: "Description is required" })}
           error={errors.description && errors.description.message}
         />
-
+        <Header sub content="Location details" color="teal" />
         <Form.Input
           placeholder="City"
           defaultValue={event?.city || ""}
@@ -69,14 +65,14 @@ export default function EventForm() {
           type="date"
           placeholder="Date"
           defaultValue={event?.date || ""}
-          {...register("date", {required: 'Date is required'})}
+          {...register("date", { required: "Date is required" })}
           error={errors.date && errors.date.message}
         />
 
         <Button 
-        disabled={!isValid}
-        type="submit" floated="right" positive content="Submit" />
-        <Button as={Link} to="/events" type="button" floated="right" content="Cancel" />
+        loading={isSubmitting}
+        disabled={!isValid} type="submit" floated="right" positive content="Submit" />
+        <Button loading={isSubmitting} as={Link} to="/events" type="button" floated="right" content="Cancel" />
       </Form>
     </Segment>
   )
