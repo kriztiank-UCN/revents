@@ -1,15 +1,20 @@
-import { ChangeEvent, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { Button, Form, Header, Segment } from "semantic-ui-react"
 import { useAppDispatch, useAppSelector } from "../../../app/store/store"
 import { createEvent, updateEvent } from "../eventSlice"
 import { createId } from "@paralleldrive/cuid2"
-import { FieldValues, useForm } from "react-hook-form"
+import { Controller, FieldValues, useForm } from "react-hook-form"
+import { categoryOptions } from "./categoryOptions"
+// import 'react-datepicker/dist/react-datepicker.css';
+// import DatePicker from "react-datepicker"
 
 export default function EventForm() {
-  const { register, handleSubmit, formState: { errors, isValid, isSubmitting } } = useForm({
-    mode: 'onTouched'
-});
+  const {
+    register, handleSubmit, control, setValue,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm({
+    mode: "onTouched",
+  })
   let { id } = useParams()
   const event = useAppSelector(state => state.events.events.find(e => e.id === id))
   const dispatch = useAppDispatch()
@@ -26,20 +31,34 @@ export default function EventForm() {
 
   return (
     <Segment clearing>
-      <Header content='Event details' sub color='teal' />
+      <Header content="Event details" sub color="teal" />
       <Form onSubmit={handleSubmit(onSubmit)}>
+        {/* title */}
         <Form.Input
           placeholder="Event title"
           defaultValue={event?.title || ""}
           {...register("title", { required: true })}
           error={errors.title && "Title is required"}
         />
-        <Form.Input
-          placeholder="Category"
-          defaultValue={event?.category || ""}
-          {...register("category", { required: "Category is required" })}
-          error={errors.category && errors.category.message}
+
+        {/* category */}
+        <Controller
+          name="category"
+          control={control}
+          rules={{ required: "Category is required" }}
+          defaultValue={event?.category}
+          render={({ field }) => (
+            <Form.Select
+              options={categoryOptions}
+              placeholder="Category"
+              clearable
+              {...field}
+              onChange={(_, d) => setValue("category", d.value, { shouldValidate: true })}
+              error={errors.category && errors.category.message}
+            />
+          )}
         />
+
         <Form.TextArea
           placeholder="Description"
           defaultValue={event?.description || ""}
@@ -69,10 +88,22 @@ export default function EventForm() {
           error={errors.date && errors.date.message}
         />
 
-        <Button 
-        loading={isSubmitting}
-        disabled={!isValid} type="submit" floated="right" positive content="Submit" />
-        <Button loading={isSubmitting} as={Link} to="/events" type="button" floated="right" content="Cancel" />
+        <Button
+          loading={isSubmitting}
+          disabled={!isValid}
+          type="submit"
+          floated="right"
+          positive
+          content="Submit"
+        />
+        <Button
+          loading={isSubmitting}
+          as={Link}
+          to="/events"
+          type="button"
+          floated="right"
+          content="Cancel"
+        />
       </Form>
     </Segment>
   )
