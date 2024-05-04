@@ -19,7 +19,8 @@ export const router = createBrowserRouter([
       { path: "/events", element: <EventDashboard /> },
       { path: "/events/:id", element: <EventDetailedPage /> },
       { path: "/manage/:id", element: <EventForm /> },
-      { path: "/createEvent", element: <EventForm /> },
+      // EventForm with a key makes it unique and will rerender the component
+      { path: "/createEvent", element: <EventForm key='create' /> },
       { path: "/scratch", element: <Scratch /> },
     ],
   },

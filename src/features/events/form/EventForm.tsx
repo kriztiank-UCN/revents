@@ -24,12 +24,11 @@ export default function EventForm() {
   const navigate = useNavigate()
 
   function onSubmit(data: FieldValues) {
-    console.log(data)
-    // id = id ?? createId()
-    // event
-    //   ? dispatch(updateEvent({ ...event, ...values }))
-    //   : dispatch(createEvent({ ...values, id, hostedBy: "bob", attendees: [], hostPhotoURL: "" }))
-    // navigate(`/events/${id}`)
+    id = id ?? createId();
+    event
+        ? dispatch(updateEvent({ ...event, ...data, date: data.date.toString()}))
+        : dispatch(createEvent({ ...data, id, hostedBy: 'bob', attendees: [], hostPhotoURL: '', date: data.date.toString()}))
+    navigate(`/events/${id}`);
   }
 
   return (
