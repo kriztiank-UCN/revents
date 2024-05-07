@@ -4,12 +4,14 @@ import { useAppDispatch, useAppSelector } from "../../../app/store/store"
 import { db } from "../../../app/config/firebase"
 import { collection, onSnapshot, query } from "firebase/firestore"
 import { AppEvent } from "../../../app/types/event"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { setEvents } from "../eventSlice"
+import LoadingComponent from "../../../app/layout/LoadingComponent"
 
 export default function EventDashboard() {
   const { events } = useAppSelector(state => state.events)
   const dispatch = useAppDispatch()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const q = query(collection(db, "events"))
@@ -20,13 +22,17 @@ export default function EventDashboard() {
           evts.push({ ...doc.data(), id: doc.id } as AppEvent)
         })
         dispatch(setEvents(evts))
+        setLoading(false)
       },
-      error: error => {
-        console.error("Error getting documents: ", error)
+      error: err => {
+        console.log(err)
+        setLoading(false)
       }
     })
     return () => unsubscribe()
   }, [dispatch])
+
+  if (loading) return <LoadingComponent />
 
   return (
     <Grid>
