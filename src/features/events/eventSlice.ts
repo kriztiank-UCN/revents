@@ -1,43 +1,36 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { AppEvent } from '../../app/types/event'
 import { Timestamp } from 'firebase/firestore'
-import { createSlice } from '@reduxjs/toolkit'
+import { GenericActions, GenericState, createGenericSlice } from '../../app/store/genericSlice'
 
 type State = {
-    events: AppEvent[]
+    data: AppEvent[]
 }
 
 const initialState: State = {
-    events: []
+    // listening to data from a Firestore collection and storing it in our Redux store.
+    data: []
 }
 
-export const eventSlice = createSlice({
+export const eventSlice = createGenericSlice({
     name: 'events',
-    initialState,
+    initialState: initialState as GenericState<AppEvent[]>,
     reducers: {
-        setEvents: {
+        success: {
             reducer: (state, action: PayloadAction<AppEvent[]>) => {
-                state.events = action.payload
+                state.data = action.payload
+                state.status = 'finished'
             },
             prepare: (events: any) => {
-                // let eventArray: AppEvent[] = [];
-                // Array.isArray(events) ? eventArray = events : eventArray.push(events)
-                const mapped = events.map((e: any) => {
+                let eventArray: AppEvent[] = [];
+                Array.isArray(events) ? eventArray = events : eventArray.push(events)
+                const mapped = eventArray.map((e: any) => {
                     return {...e, date: (e.date as Timestamp).toDate().toISOString()}
                 });
                 return {payload: mapped}
             }
         },
-        createEvent: (state, action) => {
-            state.events.push(action.payload);
-        },
-        updateEvent: (state, action) => {
-            state.events[state.events.findIndex(evt => evt.id === action.payload.id)] = action.payload;
-        },
-        deleteEvent: (state, action) => {
-            state.events.splice(state.events.findIndex(evt => evt.id === action.payload), 1)
-        }
     }
 })
 
-export const {createEvent, updateEvent, deleteEvent, setEvents} = eventSlice.actions;
+export const actions = eventSlice.actions as GenericActions<AppEvent[]>
