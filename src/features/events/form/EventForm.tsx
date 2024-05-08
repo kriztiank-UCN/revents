@@ -6,6 +6,7 @@ import { categoryOptions } from "./categoryOptions"
 import "react-datepicker/dist/react-datepicker.css"
 import DatePicker from "react-datepicker"
 import { AppEvent } from "../../../app/types/event"
+import { toast } from 'react-toastify';
 import { collection, doc, setDoc, Timestamp, updateDoc } from "firebase/firestore"
 import { db } from "../../../app/config/firebase"
 
@@ -55,7 +56,7 @@ async function onSubmit(data: FieldValues) {
           navigate(`/events/${ref?.id}`)
       }
   } catch (error: any) {
-      // toast.error(error.message);
+      toast.error(error.message);
       console.log(error.message);
   }
 }
