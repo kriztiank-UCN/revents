@@ -1,20 +1,20 @@
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Button, Form, Header, Segment } from 'semantic-ui-react';
-import { useAppSelector } from '../../../app/store/store';
-import { Controller, FieldValues, useForm } from 'react-hook-form';
-import { categoryOptions } from './categoryOptions';
-import 'react-datepicker/dist/react-datepicker.css';
-import DatePicker from 'react-datepicker';
-import { AppEvent } from '../../../app/types/event';
-import { Timestamp } from 'firebase/firestore';
-import { toast } from 'react-toastify';
-import { useFireStore } from '../../../app/hooks/firestore/useFirestore';
-import { useEffect } from 'react';
-import { actions } from '../eventSlice';
-import LoadingComponent from '../../../app/layout/LoadingComponent';
+import { Link, useNavigate, useParams } from "react-router-dom"
+import { Button, Form, Header, Segment } from "semantic-ui-react"
+import { useAppSelector } from "../../../app/store/store"
+import { Controller, FieldValues, useForm } from "react-hook-form"
+import { categoryOptions } from "./categoryOptions"
+import "react-datepicker/dist/react-datepicker.css"
+import DatePicker from "react-datepicker"
+import { AppEvent } from "../../../app/types/event"
+import { Timestamp } from "firebase/firestore"
+import { toast } from "react-toastify"
+import { useFireStore } from "../../../app/hooks/firestore/useFirestore"
+import { useEffect } from "react"
+import { actions } from "../eventSlice"
+import LoadingComponent from "../../../app/layout/LoadingComponent"
 
 export default function EventForm() {
-  const {loadDocument, create, update} = useFireStore('events');
+  const { loadDocument, create, update } = useFireStore("events")
   const {
     register,
     handleSubmit,
@@ -24,68 +24,72 @@ export default function EventForm() {
   } = useForm({
     mode: "onTouched",
     defaultValues: async () => {
-      if (event) return {...event, date: new Date(event.date)}
-  }
+      if (event) return { ...event, date: new Date(event.date) }
+    },
   })
   const { id } = useParams()
   const event = useAppSelector(state => state.events.data.find(e => e.id === id))
-  const {status} = useAppSelector(state => state.events);
+  const { status } = useAppSelector(state => state.events)
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) return
     loadDocument(id, actions)
-}, [id, loadDocument])
+  }, [id, loadDocument])
 
-async function updateEvent(data: AppEvent) {
-  if (!event) return;
-  await update(data.id, {
+  async function updateEvent(data: AppEvent) {
+    if (!event) return
+    await update(data.id, {
       ...data,
-      date: Timestamp.fromDate(data.date as unknown as Date)
-  })
-}
-
-async function createEvent(data: FieldValues) {
-  const ref = await create({
-      ...data,
-      hostedBy: 'bob', 
-      attendees: [], 
-      hostPhotoURL: '',
-      date: Timestamp.fromDate(data.date as unknown as Date)
-  })
-  return ref;
-}  
-
-async function onSubmit(data: FieldValues) {
-  try {
-      if (event) {
-          await updateEvent({...event, ...data});
-          navigate(`/events/${event.id}`);
-      } else {
-          const ref = await createEvent(data);
-          navigate(`/events/${ref?.id}`)
-      }
-  } catch (error: any) {
-      toast.error(error.message);
-      console.log(error.message);
+      date: Timestamp.fromDate(data.date as unknown as Date),
+    })
   }
-}
 
-  if (status === 'loading') return <LoadingComponent />
+  async function createEvent(data: FieldValues) {
+    const ref = await create({
+      ...data,
+      hostedBy: "bob",
+      attendees: [],
+      hostPhotoURL: "",
+      date: Timestamp.fromDate(data.date as unknown as Date),
+    })
+    return ref
+  }
+
+  async function handleCancelToggle(event: AppEvent) {
+    await update(event.id, {
+      isCancelled: !event.isCancelled,
+    })
+    toast.success(`Event has been ${event.isCancelled ? "uncancelled" : "cancelled"}`)
+  }
+
+  async function onSubmit(data: FieldValues) {
+    try {
+      if (event) {
+        await updateEvent({ ...event, ...data })
+        navigate(`/events/${event.id}`)
+      } else {
+        const ref = await createEvent(data)
+        navigate(`/events/${ref?.id}`)
+      }
+    } catch (error: any) {
+      toast.error(error.message)
+      console.log(error.message)
+    }
+  }
+
+  if (status === "loading") return <LoadingComponent />
 
   return (
     <Segment clearing>
       <Header content="Event details" sub color="teal" />
       <Form onSubmit={handleSubmit(onSubmit)}>
-        {/* title */}
         <Form.Input
           placeholder="Event title"
           defaultValue={event?.title || ""}
           {...register("title", { required: true })}
           error={errors.title && "Title is required"}
         />
-
-        {/* category */}
         <Controller
           name="category"
           control={control}
@@ -102,7 +106,7 @@ async function onSubmit(data: FieldValues) {
             />
           )}
         />
-        {/* description */}
+
         <Form.TextArea
           placeholder="Description"
           defaultValue={event?.description || ""}
@@ -110,21 +114,18 @@ async function onSubmit(data: FieldValues) {
           error={errors.description && errors.description.message}
         />
         <Header sub content="Location details" color="teal" />
-        {/* city */}
         <Form.Input
           placeholder="City"
           defaultValue={event?.city || ""}
           {...register("city", { required: "City is required" })}
           error={errors.city && errors.city.message}
         />
-        {/* venue */}
         <Form.Input
           placeholder="Venue"
           defaultValue={event?.venue || ""}
           {...register("venue", { required: "Venue is required" })}
           error={errors.venue && errors.venue.message}
         />
-        {/* date */}
         <Form.Field>
           <Controller
             name="date"
@@ -143,7 +144,17 @@ async function onSubmit(data: FieldValues) {
             )}
           />
         </Form.Field>
-        {/* buttons */}
+
+        {event && (
+          <Button
+            type="button"
+            floated="left"
+            color={event.isCancelled ? "green" : "red"}
+            onClick={() => handleCancelToggle(event)}
+            content={event.isCancelled ? "Reactivate event" : "Cancel event"}
+          />
+        )}
+
         <Button
           loading={isSubmitting}
           disabled={!isValid}
@@ -153,7 +164,7 @@ async function onSubmit(data: FieldValues) {
           content="Submit"
         />
         <Button
-          loading={isSubmitting}
+          disabled={isSubmitting}
           as={Link}
           to="/events"
           type="button"
