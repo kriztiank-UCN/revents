@@ -37,27 +37,24 @@ export default function EventForm() {
     loadDocument(id, actions)
 }, [id, loadDocument])
 
-  async function updateEvent(data: AppEvent) {
-    if (!event) return;
-const docRef = doc(db, "events", event.id);
-
-    await updateDoc(docRef, {
-        ...data,
-        date: Timestamp.fromDate(data.date as unknown as Date)
-    })
+async function updateEvent(data: AppEvent) {
+  if (!event) return;
+  await update(data.id, {
+      ...data,
+      date: Timestamp.fromDate(data.date as unknown as Date)
+  })
 }
 
 async function createEvent(data: FieldValues) {
-  const newEventRef = doc(collection(db, 'events'));
-  await setDoc(newEventRef, {
+  const ref = await create({
       ...data,
       hostedBy: 'bob', 
       attendees: [], 
       hostPhotoURL: '',
       date: Timestamp.fromDate(data.date as unknown as Date)
   })
-  return newEventRef;
-} 
+  return ref;
+}  
 
 async function onSubmit(data: FieldValues) {
   try {

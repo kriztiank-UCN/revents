@@ -57,7 +57,7 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
         listenersRef.current.push({name: path, unsubscribe: listener});
 
     }, [dispatch, path])
-    
+
     // load a single document
     const loadDocument = useCallback((id: string, actions: GenericActions<T>) => {
         dispatch(actions.loading());
@@ -74,7 +74,7 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
         })
         listenersRef.current.push({name: path + '/' + id, unsubscribe: listener})
     }, [dispatch, path])
-
+    // create a document
     const create = async (data: T) => {
         try {
             const ref = doc(collection(db, path));
@@ -85,7 +85,7 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
             toast.error(error.message);
         }
     }
-
+    // update a document
     const update = async (id: string, data: T) => {
         const docRef = doc(db, path, id);
         try {
@@ -95,7 +95,7 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
             toast.error(error.message);
         }
     }
-
+    // remove a document
     const remove = async (id: string) => {
         try {
             return await deleteDoc(doc(db, path, id));
