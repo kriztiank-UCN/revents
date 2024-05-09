@@ -3,7 +3,7 @@ import EventListAttendee from "./EventListAttendee"
 import { AppEvent } from "../../../app/types/event"
 import { Link } from "react-router-dom"
 import { useAppDispatch } from '../../../app/store/store';
-import { deleteEvent } from '../eventSlice';
+// import { deleteEvent } from '../eventSlice';
 
 type Props = {
   event: AppEvent

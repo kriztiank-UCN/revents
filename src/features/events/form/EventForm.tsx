@@ -1,16 +1,20 @@
-import { Link, useNavigate, useParams } from "react-router-dom"
-import { Button, Form, Header, Segment } from "semantic-ui-react"
-import { useAppSelector } from "../../../app/store/store"
-import { Controller, FieldValues, useForm } from "react-hook-form"
-import { categoryOptions } from "./categoryOptions"
-import "react-datepicker/dist/react-datepicker.css"
-import DatePicker from "react-datepicker"
-import { AppEvent } from "../../../app/types/event"
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Button, Form, Header, Segment } from 'semantic-ui-react';
+import { useAppSelector } from '../../../app/store/store';
+import { Controller, FieldValues, useForm } from 'react-hook-form';
+import { categoryOptions } from './categoryOptions';
+import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from 'react-datepicker';
+import { AppEvent } from '../../../app/types/event';
+import { Timestamp } from 'firebase/firestore';
 import { toast } from 'react-toastify';
-import { collection, doc, setDoc, Timestamp, updateDoc } from "firebase/firestore"
-import { db } from "../../../app/config/firebase"
+import { useFireStore } from '../../../app/hooks/firestore/useFirestore';
+import { useEffect } from 'react';
+import { actions } from '../eventSlice';
+import LoadingComponent from '../../../app/layout/LoadingComponent';
 
 export default function EventForm() {
+  const {loadDocument, create, update} = useFireStore('events');
   const {
     register,
     handleSubmit,
@@ -19,10 +23,19 @@ export default function EventForm() {
     formState: { errors, isValid, isSubmitting },
   } = useForm({
     mode: "onTouched",
+    defaultValues: async () => {
+      if (event) return {...event, date: new Date(event.date)}
+  }
   })
   const { id } = useParams()
-  const event = useAppSelector(state => state.events.events.find(e => e.id === id))
+  const event = useAppSelector(state => state.events.data.find(e => e.id === id))
+  const {status} = useAppSelector(state => state.events);
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (!id) return;
+    loadDocument(id, actions)
+}, [id, loadDocument])
 
   async function updateEvent(data: AppEvent) {
     if (!event) return;
@@ -60,6 +73,8 @@ async function onSubmit(data: FieldValues) {
       console.log(error.message);
   }
 }
+
+  if (status === 'loading') return <LoadingComponent />
 
   return (
     <Segment clearing>
