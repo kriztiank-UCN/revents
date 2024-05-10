@@ -15,7 +15,7 @@ export default function SignedOutButtons() {
                 basic 
                 inverted content='Register' 
                 style={{ marginLeft: '0.5em' }} 
-                // onClick={() => dispatch(openModal({type: 'RegisterForm'}))}
+                onClick={() => dispatch(openModal({type: 'RegisterForm'}))}
             />
         </MenuItem>
     )

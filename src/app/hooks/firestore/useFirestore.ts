@@ -31,6 +31,7 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
     }, [])
 
     const dispatch = useAppDispatch();
+
     // listen to collection
     const loadCollection = useCallback((actions: GenericActions<T>) => {
         dispatch(actions.loading());
@@ -74,6 +75,7 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
         })
         listenersRef.current.push({name: path + '/' + id, unsubscribe: listener})
     }, [dispatch, path])
+
     // create a document
     const create = async (data: T) => {
         try {
@@ -85,6 +87,7 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
             toast.error(error.message);
         }
     }
+
     // update a document
     const update = async (id: string, data: T) => {
         const docRef = doc(db, path, id);
@@ -95,6 +98,7 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
             toast.error(error.message);
         }
     }
+
     // remove a document
     const remove = async (id: string) => {
         try {
@@ -105,5 +109,15 @@ export const useFireStore = <T extends DocumentData>(path: string) => {
         }
     }
 
-    return {loadCollection, loadDocument, create, update, remove}
+    // set a document with a specific id
+    const set = async (id: string, data: any) => {
+        try {
+            return await setDoc(doc(db, path, id), data);
+        } catch (error: any) {
+            console.log(error);
+            toast.error(error.message)
+        }
+    }
+
+    return {loadCollection, loadDocument, create, update, remove, set}
 }

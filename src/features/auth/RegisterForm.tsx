@@ -3,10 +3,17 @@ import ModalWrapper from "../../app/common/modals/ModalWrapper"
 import { FieldValues, useForm } from "react-hook-form"
 import { useAppDispatch } from "../../app/store/store"
 import { closeModal } from "../../app/common/modals/modalSlice"
-import { signInWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
 import { auth } from "../../app/config/firebase"
+import { signIn } from "./authSlice"
+// useFireStore custom hook
+import { useFireStore } from "../../app/hooks/firestore/useFirestore"
+import { Timestamp } from "firebase/firestore"
 
-export default function LoginForm() {
+export default function RegisterForm() {
+  // useFireStore custom hook
+  // set a document with a specific id & create a profiles collection
+  const { set } = useFireStore("profiles")
   const {
     register,
     handleSubmit,
@@ -19,8 +26,16 @@ export default function LoginForm() {
 
   async function onSubmit(data: FieldValues) {
     try {
-      await signInWithEmailAndPassword(auth, data.email, data.password)
-
+      const userCreds = await createUserWithEmailAndPassword(auth, data.email, data.password)
+      await updateProfile(userCreds.user, {
+        displayName: data.displayName,
+      })
+      await set(userCreds.user.uid, {
+        displayName: data.displayName,
+        email: data.email,
+        createdAt: Timestamp.now(),
+      })
+      dispatch(signIn(userCreds.user))
       dispatch(closeModal())
     } catch (error: any) {
       // set errors coming back from firebase
@@ -32,13 +47,19 @@ export default function LoginForm() {
   }
 
   return (
-    <ModalWrapper header="Sign into re-vents">
+    <ModalWrapper header="Register to re-vents">
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Form.Input
           defaultValue=""
+          placeholder="Display name"
+          {...register("displayName", { required: true })}
+          // set errors with react-hook-form
+          error={errors.displayName && "Display name is required"}
+        />
+        <Form.Input
+          defaultValue=""
           placeholder="Email address"
-          // eslint-disable-next-line no-useless-escape
-          {...register("email", { required: true, pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/ })}
+          {...register("email", { required: true, pattern: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/ })}
           error={
             (errors.email?.type === "required" && "Email is required") ||
             (errors.email?.type === "pattern" && "Email is invalid")
@@ -67,7 +88,7 @@ export default function LoginForm() {
           fluid
           size="large"
           color="teal"
-          content="Login"
+          content="Register"
         />
       </Form>
     </ModalWrapper>
