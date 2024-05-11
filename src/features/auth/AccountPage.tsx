@@ -8,7 +8,7 @@ import { updatePassword } from "firebase/auth"
 import { toast } from "react-toastify"
 
 export default function AccountPage() {
-  // use providerID to determine which provider the user is using
+  // use providerId to determine which provider the user is using
   const { currentUser } = useAppSelector(state => state.auth)
 
   const {
